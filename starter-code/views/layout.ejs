@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+  </head>
+
+  <body>
+
+    <header>
+      <h1>Passport App</h1>
+      <nav>
+      <ul>
+        <span><li><a href="/">Home </a></li></span>
+        <% if (typeof user !== 'undefined') { %>
+          <span><li><a href ="/logout">Log Out </a> </li>
+          <span><li><a href ="/profile/edit">Edit Profile </a> </li>
+
+        <% } else { %>
+
+          <span><li><a href="/signup"> Sign Up </a> </li></span>
+          <span><li><a href="/login"> Log In </a> </li></span>
+        <% } %>
+      </ul>
+    </nav>
+    </header>
+
+    <br>
+    <br>
+    <br>
+
+    <%- body %>
+
+    <footer>
+      <span>Made with &hearts; at Ironhack by</span>
+      <span>Sherwino</span>
+      <span><a href="/">This is the way back home</a></span>
+    </footer>
+
+  </body>
+</html>

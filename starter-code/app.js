@@ -1,33 +1,51 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var app = express();
+//so these are all of the packages that my app depends on
+const express         = require('express');
+const path            = require('path');
+const favicon         = require('serve-favicon');
+const logger          = require('morgan');
+const cookieParser    = require('cookie-parser');
+const bodyParser      = require('body-parser');
+const layouts         = require('express-ejs-layouts');
+const mongoose        = require('mongoose');
+const session         = require('express-session');
+const bcrypt          = require('bcrypt');
+const passport        = require('passport');
+const LocalStrategy   = require('passport-local').Strategy;
+const flash           = require('connect-flash');
+const passportSetup   = require('./config/passport-config.js');
+//this is the model that we want to use for the users in the app
+const User            = require('./models/user.js');
 
-var index = require('./routes/index');
-var users = require('./routes/users');
-const passportRouter = require("./routes/passportRouter");
-//mongoose configuration
-const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/passport-local");
-//require the user model
-const User = require("./models/user");
-const session       = require("express-session");
-const bcrypt        = require("bcrypt");
-const passport      = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
-const flash = require("connect-flash");
+//these are the routes that I want to import into the app.js
+const index           = require('./routes/index');
+const users           = require('./routes/users');
+const passRouter      = require('./routes/passportRouter');
 
+//this will create a mongodb and connect to it the app
+mongoose.connect('mongodb://localhost/passAuthLab');
 
-
+//initialize express
+const app = express();
 
 
 //enable sessions here
+//create a session cookie for the people visiting site
+app.use(session ({
+  secret: 'this is going to turn into a session cookie, I think...',
+  //these two options are going to prevent warning but...I don't know why yet
+  resave:             true,
+  saveUninitialized:  true
+}) );
 
+app.use(passport.initialize());
+app.use(passport.session());
 
-
+app.use((req, res, next) => {
+  if (req.user) {
+    res.locals.user = req.user;
+  }
+  next();
+});
 
 //initialize passport and session here
 
@@ -39,29 +57,30 @@ const flash = require("connect-flash");
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-
+//default title for the website
+app.locals.title = 'Authentication With Passport';
+//this is where all the middleware goes
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-// require in the routers
+app.use(layouts);
+
+
+
+//lets use all of the routes that we imported into app.js
 app.use('/', index);
 app.use('/', users);
-app.use('/', passportRouter);
-
-
-
+app.use('/', passRouter);
 
 
 //passport code here
-
-
-
-
-
-
-
+passportSetup();
+//first you have to initialize the passport package
+app.use(passport.initialize());
+//then you have to call the session
+app.use(passport.session());
 
 
 

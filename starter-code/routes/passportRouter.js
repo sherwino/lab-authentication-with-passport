@@ -1,16 +1,90 @@
 const express        = require("express");
-const router         = express.Router();
+const passRouter     = express.Router();
 // User model
 const User           = require("../models/user");
 // Bcrypt to encrypt passwords
 const bcrypt         = require("bcrypt");
-const bcryptSalt     = 10;
-const ensureLogin = require("connect-ensure-login");
-const passport      = require("passport");
+const bcryptSalt     = bcrypt.genSaltSync(10);
+const ensure         = require("connect-ensure-login");
+const passport       = require("passport");
+
+
+//----------------------------ROUTES -----------------------------
+
+  //----------------------------------SIGNUP----------------------
+  passRouter.get('/signup',
+  //redirects to root directory if you are logged in
+  ensure.ensureNotLoggedIn('/'), (req, res, next) => {
+  res.render('views/passport/signup.ejs');
+  });
+
+  passRouter.post('/signup', (req, res, next) => {
+    const signUser    = req.body.signupUsername;
+    const signPass    = req.body.signupPassword;
+
+    //Don't let users submit blank usernames or passwords
+    if (signUsername === '' || signPassword === '') {
+      res.render('views/passport/signup.ejs', {
+      errorMessage: 'Please provide both a username and a password sucka'
+      });
+    return;
+    }
+
+  //IF YOU WANT TO CHECK PASSWORD LENGTH, CHARACTERS, ETC YOU WOULD DO IT HERE
+    User.findOne(
+      //first argument is the criteria which documents you want
+      { username: signUser },
+      //second argument is the projection, which field you want to see
+      { username: 1 },
+      //third argument callback
+      ( err, foundUser ) => {
+      //see if the db query had an error
+        if (err) {
+          next(err);
+          return;
+        }
+      //Don't let the user regiter if the username is taken
+        if (foundUser) {
+          res.render('views/passport/signup.ejs', {
+            errorMessage: 'Username is taken, dude'
+          });
+          return;
+        }
+      //not sure if I should put this at the top of the site.
+        const encryptedPassHash = bcrypt.hashSync(signPass, salt);
+
+        //create the user
+          const theUser = new User({
+            username:           signUser,
+            encryptedPassword:  hashPass
+
+          });
+          //save the use to the db, unless if there is an error
+          theUser.save((err) => {
+            if (err) {
+              next(err);
+              return;
+            }
+            res.redirect('/');
+          });
+        }
+      );
+    });
+
+  //----------------------------------LOGIN----------------------
 
 
 
-router.get("/private-page", ensureLogin.ensureLoggedIn(), (req, res) => {
+
+
+  //----------------------------------LOGOUT----------------------
+
+
+
+
+  //----------------------------------SIGNUP----------------------
+
+passRouter.get("/private-page", ensure.ensureLoggedIn(), (req, res) => {
   res.render("passport/private", { user: req.user });
 });
 
@@ -19,4 +93,4 @@ router.get("/private-page", ensureLogin.ensureLoggedIn(), (req, res) => {
 
 
 
-module.exports = router;
+module.exports = passRouter;
