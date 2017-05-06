@@ -45,7 +45,7 @@ app.use(layouts);
 //before using passport
 app.use(session ({
   secret: 'this is going to turn into a session cookie, I think...',
-  //these two options are going to prevent warning but...I don't know why yet
+  //these two options are going to prevent warnings, I guess browser warnings
   resave:             true,
   saveUninitialized:  true
 }) );

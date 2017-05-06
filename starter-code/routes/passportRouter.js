@@ -55,12 +55,12 @@ const passRouter     = express.Router();
           return;
         }
       //not sure if I should put this at the top of the site.
-        const encryptedPassHash = bcrypt.hashSync(signPass, salt);
+        const encryptedPassHash = bcrypt.hashSync(signPass, bcryptSalt);
 
         //create the user
           const theUser = new User({
             username:           signUser,
-            encryptedPassword:  hashPass
+            encryptedPassword:  encryptedPassHash
 
           });
           //save the use to the db, unless if there is an error
@@ -76,17 +76,35 @@ const passRouter     = express.Router();
     });
 
   //----------------------------------LOGIN----------------------
+  passRouter.get('/login', (req, res, next) => {
+    res.render('passport/login.ejs');
 
+  });
+
+  //<form method="post" actopm="/login">
+  passRouter.post('/login',
+
+  //redirects to root if you Are Logged In
+  ensure.ensureNotLoggedIn('/'),
+
+    passport.authenticate('local', { //using local as in 'LocalStrategy', { options }
+    successRedirect: '/',      //instead of using regular express redirects we are using passport
+    failureRedirect: '/login'
+  } )
+  );
 
 
 
 
   //----------------------------------LOGOUT----------------------
 
+  passRouter.get('/logout', (req, res, next) => {
+    req.logout(); //this a passport method
 
+    res.redirect('/');
+  });
 
-
-  //----------------------------------SIGNUP----------------------
+//------------------------------------PRIVATE PAGE------------------
 
 passRouter.get("/private-page", ensure.ensureLoggedIn(), (req, res) => {
   res.render("passport/private", { user: req.user });
