@@ -1,5 +1,4 @@
 const express        = require("express");
-const passRouter     = express.Router();
 // User model
 const User           = require("../models/user");
 // Bcrypt to encrypt passwords
@@ -9,22 +8,27 @@ const ensure         = require("connect-ensure-login");
 const passport       = require("passport");
 
 
+//initialize the router
+const passRouter     = express.Router();
+
 //----------------------------ROUTES -----------------------------
 
   //----------------------------------SIGNUP----------------------
   passRouter.get('/signup',
-  //redirects to root directory if you are logged in
-  ensure.ensureNotLoggedIn('/'), (req, res, next) => {
-  res.render('views/passport/signup.ejs');
+    //redirects to root directory if you are logged in
+    ensure.ensureNotLoggedIn('/'),
+    (req, res, next) => {
+    res.render('passport/signup.ejs');
   });
+
 
   passRouter.post('/signup', (req, res, next) => {
     const signUser    = req.body.signupUsername;
     const signPass    = req.body.signupPassword;
 
     //Don't let users submit blank usernames or passwords
-    if (signUsername === '' || signPassword === '') {
-      res.render('views/passport/signup.ejs', {
+    if (signUser === '' || signPass === '') {
+      res.render('passport/signup.ejs', {
       errorMessage: 'Please provide both a username and a password sucka'
       });
     return;
@@ -45,7 +49,7 @@ const passport       = require("passport");
         }
       //Don't let the user regiter if the username is taken
         if (foundUser) {
-          res.render('views/passport/signup.ejs', {
+          res.render('passport/signup.ejs', {
             errorMessage: 'Username is taken, dude'
           });
           return;

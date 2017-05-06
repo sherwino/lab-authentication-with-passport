@@ -27,32 +27,6 @@ mongoose.connect('mongodb://localhost/passAuthLab');
 //initialize express
 const app = express();
 
-
-//enable sessions here
-//create a session cookie for the people visiting site
-app.use(session ({
-  secret: 'this is going to turn into a session cookie, I think...',
-  //these two options are going to prevent warning but...I don't know why yet
-  resave:             true,
-  saveUninitialized:  true
-}) );
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use((req, res, next) => {
-  if (req.user) {
-    res.locals.user = req.user;
-  }
-  next();
-});
-
-//initialize passport and session here
-
-
-
-
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -66,23 +40,37 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(layouts);
+//enable sessions here
+//create a session cookie for the people visiting site
+//before using passport
+app.use(session ({
+  secret: 'this is going to turn into a session cookie, I think...',
+  //these two options are going to prevent warning but...I don't know why yet
+  resave:             true,
+  saveUninitialized:  true
+}) );
 
 
+app.use((req, res, next) => {
+  if (req.user) {
+    res.locals.user = req.user;
+  }
+  next();
+});
 
-//lets use all of the routes that we imported into app.js
-app.use('/', index);
-app.use('/', users);
-app.use('/', passRouter);
-
-
-//passport code here
-passportSetup();
+//initialize passport and session here
 //first you have to initialize the passport package
 app.use(passport.initialize());
 //then you have to call the session
 app.use(passport.session());
 
+//passport code here
+passportSetup();
 
+//lets use all of the routes that we imported into app.js
+app.use('/', index);
+app.use('/', users);
+app.use('/', passRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
