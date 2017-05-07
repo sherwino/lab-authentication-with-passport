@@ -1,12 +1,12 @@
 const express = require('express');
 const ensure = require('connect-ensure-login');
 
-const routerThingy = express.Router();
+const router = express.Router();
 
 ensure.ensureLoggedIn();
 ensure.ensureNotLoggedIn();
 
-routerThingy.get('/profile/edit',
+router.get('/profile/edit',
 //redirects to /login if you are not logged in
 ensure.ensureLoggedIn('/login'),
 
@@ -20,4 +20,4 @@ ensure.ensureLoggedIn('/login'),
 });
 
 
-module.exports = routerThingy;
+module.exports = router;

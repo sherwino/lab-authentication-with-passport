@@ -51,18 +51,19 @@ app.use(session ({
 }) );
 
 
-app.use((req, res, next) => {
-  if (req.user) {
-    res.locals.user = req.user;
-  }
-  next();
-});
 
 //initialize passport and session here
 //first you have to initialize the passport package
 app.use(passport.initialize());
 //then you have to call the session
 app.use(passport.session());
+
+app.use((req, res, next) => {
+  if (req.user) {
+    res.locals.user = req.user;
+  }
+  next();
+});
 
 //passport code here
 passportSetup();

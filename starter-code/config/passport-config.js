@@ -4,9 +4,10 @@
 
 function passportSetup () {
 
-const bcrypt = require('bcrypt');
-const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+const bcrypt          = require('bcrypt');
+const passport        = require('passport');
+const LocalStrategy   = require('passport-local').Strategy;
+const User            = require('../models/user.js'); //
 
 
 //PASSPORT GOES THROUGH THE FOLLOWING:
