@@ -1,10 +1,13 @@
 const express           = require("express");
-// User model
-const User              = require("../models/user.js");
 // Bcrypt to encrypt passwords
 const bcrypt            = require("bcrypt");
-const ensure            = require("connect-ensure-login");
 const passport          = require("passport");
+// User model
+const User              = require("../models/user.js");
+const ensure            = require("connect-ensure-login");
+
+
+
 
 
 //initialize the router
@@ -22,11 +25,11 @@ const passRouter     = express.Router();
 
 
   passRouter.post('/signup', (req, res, next) => {
-    const signUser    = req.body.signupUsername;
-    const signPass    = req.body.signupPassword;
+    const signUser        = req.body.signupUsername;
+    const signPassword    = req.body.signupPassword;
 
     //Don't let users submit blank usernames or passwords
-    if (signUser === '' || signPass === '') {
+    if (signUser === '' || signPassword === '') {
       res.render('passport/signup.ejs', {
       errorMessage: 'Please provide both a username and a password sucka'
       });
@@ -54,13 +57,13 @@ const passRouter     = express.Router();
           return;
         }
       //not sure if I should put this at the top of the site.
-      const bcryptSalt        = bcrypt.genSaltSync(10);
-      const encryptedPassHash = bcrypt.hashSync(signPass, bcryptSalt);
+      const salt              = bcrypt.genSaltSync(10);
+      const hashPass          = bcrypt.hashSync(signPassword, salt);
 
         //create the user
           const theUser = new User({
             username:           signUser,
-            encryptedPassword:  encryptedPassHash
+            encryptedPassword:  hashPass
 
           });
 
@@ -82,7 +85,7 @@ const passRouter     = express.Router();
 
   });
 
-  //<form method="post" actopm="/login">
+  //<form method="post" action="/login">
   passRouter.post('/login',
 
   //redirects to root if you Are Logged In
@@ -107,7 +110,8 @@ const passRouter     = express.Router();
 
 //------------------------------------PRIVATE PAGE------------------
 
-passRouter.get("/private-page", ensure.ensureLoggedIn(), (req, res) => {
+passRouter.get("/private-page",
+ensure.ensureLoggedIn('/'), (req, res, next) => {
   res.render("passport/private", { user: req.user });
 });
 

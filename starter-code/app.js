@@ -8,9 +8,9 @@ const bodyParser      = require('body-parser');
 const layouts         = require('express-ejs-layouts');
 const mongoose        = require('mongoose');
 const session         = require('express-session');
+const LocalStrategy   = require('passport-local').Strategy;
 const bcrypt          = require('bcrypt');
 const passport        = require('passport');
-const LocalStrategy   = require('passport-local').Strategy;
 const flash           = require('connect-flash');
 const passportSetup   = require('./config/passport-config.js');
 //this is the model that we want to use for the users in the app
@@ -43,13 +43,20 @@ app.use(layouts);
 //enable sessions here
 //create a session cookie for the people visiting site
 //before using passport
-app.use(session ({
-  secret: 'this is going to turn into a session cookie, I think...',
-  //these two options are going to prevent warnings, I guess browser warnings
-  resave:             true,
-  saveUninitialized:  true
-}) );
 
+//this from Art's snippet, very cool
+app.use(session({
+  key: "user-session",
+  secret: 'supermeng77',
+  cookie:
+  {
+    maxAge: 10000,//Life of the cookie in ms
+    // path: '/'
+  },
+  // these two options are there to prevent warnings
+  resave: true,
+  saveUninitialized: true
+}) );
 
 
 //initialize passport and session here
@@ -66,7 +73,7 @@ app.use((req, res, next) => {
 });
 
 //passport code here
-passportSetup();
+passportSetup(app);
 
 //lets use all of the routes that we imported into app.js
 app.use('/', index);
